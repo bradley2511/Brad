@@ -8,28 +8,19 @@
       background: #111;
       color: white;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       cursor: pointer;
       font-family: sans-serif;
     }
-    .mensaje {
-      margin-top: 24px;
-      font-size: 1.1rem;
-      color: #ffd700;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
   <h1>Haz clic en cualquier parte para reproducir la música 🎵</h1>
-  <!-- Reproductor de audio con controles -->
-  <audio id="musica" src="music.mp3" controls preload="auto"></audio>
-  <div class="mensaje">Si no escuchas la música, toca el botón ▶️ o revisa el volumen de tu dispositivo.</div>
+
+  <!-- Carga tu archivo mp3 -->
+  <audio id="musica" src="Music.mp3"></audio>
 
   <script>
     const musica = document.getElementById("musica");
@@ -39,7 +30,7 @@
       if (!yaInicio) {
         musica.play()
           .then(() => console.log("Reproduciendo música"))
-          .catch(err => alert("No se pudo reproducir la música: " + err));
+          .catch(err => console.error("Error al reproducir:", err));
         yaInicio = true;
       }
     });
