@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>TE AMO MI ANYELI</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --gold:#FFD700;
+  --accent1:#ff4d6d;
+  --accent2:#ff9f43;
+  --bg: linear-gradient(135deg,#2b1055,#7597de,#ff8a00);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",sans-serif;}
+body{
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  overflow:hidden;
+}
+
+/* container */
+.container{
+  width:100%;
+  max-width:1100px;
+  background:rgba(255,255,255,0.95);
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  border:6px solid var(--gold);
+  text-align:center;
+  z-index:10;
+}
+
+/* Texto con neón */
+.love-text .main{
+  font-weight:900;
+  font-size:clamp(2.5rem, 11vw, 5.5rem);
+  background:linear-gradient(90deg,#ff3366,#ff9933,#ffd166);
+  -webkit-background-clip:text;
+  color:transparent;
+  animation: heartbeat 2s infinite, neonGlow 3s infinite;
+}
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+}
+@keyframes neonGlow{
+  0%,100%{
+    text-shadow:0 0 8px #ff6699,0 0 16px #ff9966,0 0 24px #ffd166;
+  }
+  50%{
+    text-shadow:0 0 2px #ff6699,0 0 6px #ff9966,0 0 12px #ffd166;
+  }
+}
+
+/* Imagen */
+.image-card{
+  margin:20px auto;
+  max-width:480px;
+}
+.image-card img{
+  width:100%;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.25);
+  animation: floaty 6s ease-in-out infinite;
+}
+@keyframes floaty{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+
+/* info */
+.music-info{margin-top:10px;font-size:1rem;font-weight:600;color:#3a2063;}
+/* frase inferior */
+.footer-message{
+  margin-top:26px;
+  font-size:1.2rem;
+  color:#ff4d6d;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+/* efectos */
+#fireworksCanvas{position:fixed;left:0;top:0;width:100%;height:100%;z-index:9998;pointer-events:none;}
+.effect{position:absolute;pointer-events:none;z-index:1000000;}
+.heart{font-size:22px;color:#ff2040;animation:rise 2s forwards;}
+@keyframes rise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-200px)}}
+.sunflower{width:28px;height:28px;}
+</style>
+</head>
+<body>
+
+<canvas id="fireworksCanvas"></canvas>
+
+<div class="container">
+  <div class="love-text">
+    <div class="main">TE AMO<br>MI ANYELI</div>
+  </div>
+  <div class="image-card">
+    <img src="https://floresumaq.com/wp-content/uploads/2024/03/Fotos-paginas-7.png" alt="Flores">
+  </div>
+  <div class="music-info" id="status">Haz clic para escuchar la música y ver la magia ✨</div>
+  <div class="footer-message">Siempre juntos, mi amor 💖</div>
+</div>
+
+<!-- AUDIO LOCAL -->
+<audio id="musica" src="Music.mp3" preload="auto"></audio>
+
+<script>
+// --- Reproductor de música local ---
+const musica = document.getElementById("musica");
+let isPlaying = false;
+
+function updateStatus(t) {
+  document.getElementById("status").textContent = t;
+}
+
+// --- PRIMER TOQUE = activar sonido + efectos ---
+let activated = false;
+function activateAll(e){
+  if(activated) return;
+  activated = true;
+  musica.muted = false;
+  musica.volume = 0.8;
+  musica.play();
+  updateStatus("Sonando ❤ (activado con tu toque)");
+  const x=(e.touches?e.touches[0].clientX:e.clientX)||cw/2;
+  const y=(e.touches?e.touches[0].clientY:e.clientY)||ch/2;
+  boom(x,y);
+  for(let i=0;i<6;i++) heart(x+rand(-50,50),y+rand(-50,50));
+  for(let i=0;i<4;i++) sunflower(x+rand(-40,40),y+rand(-40,40));
+}
+document.addEventListener("click", activateAll, {once:true});
+document.addEventListener("touchstart", activateAll, {once:true});
+
+musica.onplay = () => { isPlaying = true; updateStatus("Sonando ❤"); };
+musica.onpause = () => { isPlaying = false; updateStatus("Pausado..."); };
+
+/* clics siguientes = solo efectos */
+document.addEventListener("click",e=>{
+  if(activated){
+    boom(e.clientX,e.clientY);
+    for(let i=0;i<4;i++) heart(e.clientX+rand(-40,40),e.clientY+rand(-40,40));
+    for(let i=0;i<3;i++) sunflower(e.clientX+rand(-30,30),e.clientY+rand(-30,30));
+  }
+});
+
+// --- EFECTOS VISUALES (igual que en GPT7.html) ---
+const canvas=document.getElementById("fireworksCanvas"),ctx=canvas.getContext("2d");
+let cw=canvas.width=innerWidth,ch=canvas.height=innerHeight;
+window.onresize=()=>{cw=canvas.width=innerWidth;ch=canvas.height=innerHeight;}
+let particles=[];
+function rand(a,b){return Math.random()*(b-a)+a;}
+class P{constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.life=80;this.vx=rand(-4,4);this.vy=rand(-6,2);}update(){this.x+=this.vx;this.y+=this.vy;this.vy+=0.1;this.life--;}draw(){ctx.fillStyle=this.c;ctx.globalAlpha=this.life/80;ctx.beginPath();ctx.arc(this.x,this.y,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}}
+function loop(){ctx.clearRect(0,0,cw,ch);for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.update();p.draw();if(p.life<=0)particles.splice(i,1);}requestAnimationFrame(loop);}loop();
+function boom(x,y){for(let i=0;i<80;i++){particles.push(new P(x,y,`hsl(${rand(0,360)},100%,60%)`));}}
+
+// corazones y girasoles
+function heart(x,y){let d=document.createElement("div");d.className="effect heart";d.style.left=x+"px";d.style.top=y+"px";d.textContent="❤";document.body.appendChild(d);setTimeout(()=>d.remove(),2000);}
+function sunflower(x,y){let d=document.createElement("div");d.className="effect sunflower";d.style.left=x+"px";d.style.top=y+"px";d.innerHTML=`<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="10" fill="#8B4513"/><g fill="#FFEB3B"><circle cx="32" cy="12" r="8"/><circle cx="32" cy="52" r="8"/><circle cx="12" cy="32" r="8"/><circle cx="52" cy="32" r="8"/><circle cx="18" cy="18" r="8"/><circle cx="46" cy="18" r="8"/><circle cx="18" cy="46" r="8"/><circle cx="46" cy="46" r="8"/></g></svg>`;document.body.appendChild(d);setTimeout(()=>d.remove(),2000);}
+</script>
+</body>
+</html>
