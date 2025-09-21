@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reproducir música al primer clic</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      cursor: pointer;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Haz clic en cualquier parte para reproducir la música 🎵</h1>
+
+  <!-- Carga tu archivo mp3 -->
+  <audio id="musica" src="Music.mp3"></audio>
+
+  <script>
+    const musica = document.getElementById("musica");
+    let yaInicio = false;
+
+    document.addEventListener("click", () => {
+      if (!yaInicio) {
+        musica.play()
+          .then(() => console.log("Reproduciendo música"))
+          .catch(err => console.error("Error al reproducir:", err));
+        yaInicio = true;
+      }
+    });
+  </script>
+</body>
+</html>
