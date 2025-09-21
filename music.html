@@ -92,6 +92,12 @@ body{
 .heart{font-size:22px;color:#ff2040;animation:rise 2s forwards;}
 @keyframes rise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-200px)}}
 .sunflower{width:28px;height:28px;}
+/* audio */
+#musica {
+  margin-top: 18px;
+  width: 80%;
+  max-width: 420px;
+}
 </style>
 </head>
 <body>
@@ -105,51 +111,28 @@ body{
   <div class="image-card">
     <img src="https://floresumaq.com/wp-content/uploads/2024/03/Fotos-paginas-7.png" alt="Flores">
   </div>
-  <div class="music-info" id="status">Haz clic para escuchar la música y ver la magia ✨</div>
+  <div class="music-info" id="status">Haz clic en cualquier parte o toca el botón ▶️ para escuchar la música y ver la magia ✨</div>
+  <!-- Reproductor de audio con controles visibles -->
+  <audio id="musica" src="Music.mp3" controls preload="auto"></audio>
   <div class="footer-message">Siempre juntos, mi amor 💖</div>
 </div>
-
-<!-- AUDIO LOCAL -->
-<audio id="musica" src="Music.mp3" preload="auto"></audio>
 
 <script>
 // --- Reproductor de música local ---
 const musica = document.getElementById("musica");
-let isPlaying = false;
+let yaInicio = false;
 
-function updateStatus(t) {
-  document.getElementById("status").textContent = t;
-}
-
-// --- PRIMER TOQUE = activar sonido + efectos ---
-let activated = false;
-function activateAll(e){
-  if(activated) return;
-  activated = true;
-  musica.muted = false;
-  musica.volume = 0.8;
-  musica.play();
-  updateStatus("Sonando ❤ (activado con tu toque)");
-  const x=(e.touches?e.touches[0].clientX:e.clientX)||cw/2;
-  const y=(e.touches?e.touches[0].clientY:e.clientY)||ch/2;
-  boom(x,y);
-  for(let i=0;i<6;i++) heart(x+rand(-50,50),y+rand(-50,50));
-  for(let i=0;i<4;i++) sunflower(x+rand(-40,40),y+rand(-40,40));
-}
-document.addEventListener("click", activateAll, {once:true});
-document.addEventListener("touchstart", activateAll, {once:true});
-
-musica.onplay = () => { isPlaying = true; updateStatus("Sonando ❤"); };
-musica.onpause = () => { isPlaying = false; updateStatus("Pausado..."); };
-
-/* clics siguientes = solo efectos */
-document.addEventListener("click",e=>{
-  if(activated){
-    boom(e.clientX,e.clientY);
-    for(let i=0;i<4;i++) heart(e.clientX+rand(-40,40),e.clientY+rand(-40,40));
-    for(let i=0;i<3;i++) sunflower(e.clientX+rand(-30,30),e.clientY+rand(-30,30));
+document.addEventListener("click", () => {
+  if (!yaInicio) {
+    musica.play()
+      .then(() => console.log("Reproduciendo música"))
+      .catch(err => console.error("Error al reproducir:", err));
+    yaInicio = true;
   }
 });
+
+musica.onplay = () => { document.getElementById("status").textContent = "Sonando ❤"; };
+musica.onpause = () => { document.getElementById("status").textContent = "Pausado..."; };
 
 // --- EFECTOS VISUALES (igual que en GPT7.html) ---
 const canvas=document.getElementById("fireworksCanvas"),ctx=canvas.getContext("2d");
@@ -164,6 +147,33 @@ function boom(x,y){for(let i=0;i<80;i++){particles.push(new P(x,y,`hsl(${rand(0,
 // corazones y girasoles
 function heart(x,y){let d=document.createElement("div");d.className="effect heart";d.style.left=x+"px";d.style.top=y+"px";d.textContent="❤";document.body.appendChild(d);setTimeout(()=>d.remove(),2000);}
 function sunflower(x,y){let d=document.createElement("div");d.className="effect sunflower";d.style.left=x+"px";d.style.top=y+"px";d.innerHTML=`<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="10" fill="#8B4513"/><g fill="#FFEB3B"><circle cx="32" cy="12" r="8"/><circle cx="32" cy="52" r="8"/><circle cx="12" cy="32" r="8"/><circle cx="52" cy="32" r="8"/><circle cx="18" cy="18" r="8"/><circle cx="46" cy="18" r="8"/><circle cx="18" cy="46" r="8"/><circle cx="46" cy="46" r="8"/></g></svg>`;document.body.appendChild(d);setTimeout(()=>d.remove(),2000);}
+
+// --- EFECTOS AL PRIMER TAP ---
+let activated = false;
+function activateAll(e){
+  if(activated) return;
+  activated = true;
+  musica.muted = false;
+  musica.volume = 0.8;
+  musica.play();
+  document.getElementById("status").textContent = "Sonando ❤ (activado con tu toque)";
+  const x=(e.touches?e.touches[0].clientX:e.clientX)||cw/2;
+  const y=(e.touches?e.touches[0].clientY:e.clientY)||ch/2;
+  boom(x,y);
+  for(let i=0;i<6;i++) heart(x+rand(-50,50),y+rand(-50,50));
+  for(let i=0;i<4;i++) sunflower(x+rand(-40,40),y+rand(-40,40));
+}
+document.addEventListener("click", activateAll, {once:true});
+document.addEventListener("touchstart", activateAll, {once:true});
+
+/* clics siguientes = solo efectos */
+document.addEventListener("click",e=>{
+  if(activated){
+    boom(e.clientX,e.clientY);
+    for(let i=0;i<4;i++) heart(e.clientX+rand(-40,40),e.clientY+rand(-40,40));
+    for(let i=0;i<3;i++) sunflower(e.clientX+rand(-30,30),e.clientY+rand(-30,30));
+  }
+});
 </script>
 </body>
 </html>
